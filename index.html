@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHAN Fragment Scroll</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      background: #05070b;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+    }
+
+    #c {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      z-index: 0;
+    }
+
+    #status {
+      position: fixed;
+      left: 24px;
+      top: 24px;
+      z-index: 2;
+      color: #fff;
+      font-size: 14px;
+      line-height: 1.4;
+      letter-spacing: 0.04em;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 10px 12px;
+      border-radius: 10px;
+      backdrop-filter: blur(8px);
+    }
+
+    #scroll-space {
+      height: 900vh;
+      position: relative;
+      z-index: 1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="status">Loading 0%</div>
+  <div id="scroll-space"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

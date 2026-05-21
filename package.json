@@ -1,0 +1,17 @@
+{
+  "name": "shan-explosion",
+  "version": "1.0.0",
+  "description": "Scroll-driven 3D fragment animation using Three.js and Vite",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.165.0"
+  },
+  "devDependencies": {
+    "vite": "^5.3.1"
+  }
+}
