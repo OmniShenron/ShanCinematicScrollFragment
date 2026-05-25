@@ -1,0 +1,32 @@
+/* ═══════════════════════════════════════════════════════
+   Scroll-Driven 3D Fragment Assembly – Global Styles
+   ═══════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+  background: #05070b;
+}
+
+body {
+  height: 500vh;
+  overflow-x: hidden;
+  background: #05070b;
+}
+
+#webgl {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  touch-action: pan-y;
+}

@@ -1,7 +1,7 @@
 {
-  "name": "shan-explosion",
+  "name": "scroll-3d-assembly",
+  "private": true,
   "version": "1.0.0",
-  "description": "Scroll-driven 3D fragment animation using Three.js and Vite",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,9 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "three": "^0.165.0"
+    "three": "^0.170.0",
+    "gsap": "^3.12.7"
   },
   "devDependencies": {
-    "vite": "^5.3.1"
+    "vite": "^6.0.0"
   }
 }
