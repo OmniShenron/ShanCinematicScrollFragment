@@ -66,7 +66,14 @@ export class ModelManager {
       if (!child.isMesh) return;
 
       // Clone material so each shard can glow independently
-      child.material = child.material.clone();
+      // Preserve texture and other properties by cloning properly
+      const originalMaterial = child.material;
+      child.material = originalMaterial.clone();
+      
+      // Ensure texture is properly referenced after cloning
+      if (originalMaterial.map && !child.material.map) {
+        child.material.map = originalMaterial.map;
+      }
 
       // Geometry bounding-box centre in world space → scatter direction
       child.geometry.computeBoundingBox();

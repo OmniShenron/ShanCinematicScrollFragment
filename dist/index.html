@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Immersive scroll-driven 3D fragment assembly – shards reassemble as you scroll with cinematic camera, bloom, and glitch effects.">
+  <title>3D Fragment Assembly</title>
+  
+  <!-- Security: Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:;">
+  
+  <!-- Accessibility: Reduced motion support -->
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    
+    /* Mobile touch optimization */
+    canvas {
+      touch-action: none;
+    }
+    
+    /* Fallback for non-WebGL browsers */
+    .no-webgl-message {
+      display: none;
+      padding: 2rem;
+      text-align: center;
+      font-family: system-ui, sans-serif;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-DwfYpfsP.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/three-qNDAPrmN.js">
+  <link rel="modulepreload" crossorigin href="/assets/gsap-9EWbs1MP.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-BRdFSKXv.css">
+</head>
+<body>
+  <canvas id="webgl" role="img" aria-label="Interactive 3D fragment assembly visualization"></canvas>
+  <noscript>
+    <div class="no-webgl-message">
+      <h1>JavaScript Required</h1>
+      <p>This experience requires JavaScript to be enabled.</p>
+    </div>
+  </noscript>
+  <script>
+    // WebGL feature detection
+    if (!window.WebGLRenderingContext) {
+      document.getElementById('webgl').style.display = 'none';
+      const msg = document.createElement('div');
+      msg.className = 'no-webgl-message';
+      msg.style.display = 'block';
+      msg.innerHTML = '<h1>WebGL Not Supported</h1><p>Your browser does not support WebGL. Please use a modern browser.</p>';
+      document.body.appendChild(msg);
+    }
+  </script>
+</body>
+</html>
