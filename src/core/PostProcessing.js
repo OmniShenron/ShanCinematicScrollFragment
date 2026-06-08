@@ -12,9 +12,13 @@ export class PostProcessing {
     // Render Pass
     this.composer.addPass(new RenderPass(scene, camera));
 
-    // Bloom Pass
+    // Bloom Pass - use renderer's pixel ratio for better performance
+    const pixelRatio = Math.min(window.devicePixelRatio, 2);
+    const width = Math.floor(window.innerWidth * pixelRatio);
+    const height = Math.floor(window.innerHeight * pixelRatio);
+    
     this.bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      new THREE.Vector2(width, height),
       CONFIG.BLOOM_BASE,
       CONFIG.BLOOM_RADIUS,
       CONFIG.BLOOM_THRESHOLD
@@ -27,7 +31,17 @@ export class PostProcessing {
     this.glitchPass.enabled = false;
     this.composer.addPass(this.glitchPass);
 
-    window.addEventListener('resize', this.onResize.bind(this));
+    // Bind resize handler for cleanup
+    this._boundResize = this.onResize.bind(this);
+    window.addEventListener('resize', this._boundResize);
+  }
+
+  /** Cleanup resources to prevent memory leaks */
+  dispose() {
+    window.removeEventListener('resize', this._boundResize);
+    this.bloomPass?.dispose();
+    this.glitchPass?.dispose();
+    this.composer?.dispose();
   }
 
   setBloomStrength(strength) {

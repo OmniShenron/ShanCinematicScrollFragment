@@ -14,7 +14,22 @@ export class AnimationManager {
     this.scrollTarget   = 0;
     this.smoothProgress = 0;
 
+    // Quaternion pool to avoid GC pressure during shard transforms
+    this._quatPool = [];
+    this._quatPoolSize = 20;
+    for (let i = 0; i < this._quatPoolSize; i++) {
+      this._quatPool.push(new THREE.Quaternion());
+    }
+    this._quatPoolIndex = 0;
+
     this._bindScroll();
+  }
+
+  /** Get a quaternion from the pool */
+  _getPooledQuaternion() {
+    const quat = this._quatPool[this._quatPoolIndex];
+    this._quatPoolIndex = (this._quatPoolIndex + 1) % this._quatPoolSize;
+    return quat;
   }
 
   // ─── Public ────────────────────────────────────────────────────────────────
@@ -98,10 +113,20 @@ export class AnimationManager {
   // ─── Private ───────────────────────────────────────────────────────────────
 
   _bindScroll() {
-    window.addEventListener('scroll', () => {
+    this._boundScroll = () => {
       const max = document.body.scrollHeight - window.innerHeight;
       this.scrollTarget = max > 0 ? window.scrollY / max : 0;
-    }, { passive: true });
+    };
+    window.addEventListener('scroll', this._boundScroll, { passive: true });
+  }
+
+  /** Cleanup scroll listener to prevent memory leaks */
+  dispose() {
+    if (this._boundScroll) {
+      window.removeEventListener('scroll', this._boundScroll);
+    }
+    // Kill all GSAP tweens
+    gsap.globalTimeline.clear();
   }
 
   _updateCamera() {
@@ -166,7 +191,7 @@ export class AnimationManager {
 
       // Rotation: tumble in proportion to how far the shard has flown
       const rotAngle = shard.fragOffset * shard.rotSpeed;
-      const quat     = new THREE.Quaternion().setFromAxisAngle(shard.rotAxis, rotAngle);
+      const quat = this._getPooledQuaternion().setFromAxisAngle(shard.rotAxis, rotAngle);
       const baseQuat = new THREE.Quaternion().setFromEuler(shard.origRot);
       quat.multiply(baseQuat);
       shard.mesh.quaternion.copy(quat);

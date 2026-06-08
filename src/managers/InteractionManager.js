@@ -29,7 +29,22 @@ export class InteractionManager {
     this.ndcPointer  = new THREE.Vector2();
     this.hoveredMesh = null;
 
+    // Quaternion pool to avoid GC pressure
+    this._quatPool = [];
+    this._quatPoolSize = 10;
+    for (let i = 0; i < this._quatPoolSize; i++) {
+      this._quatPool.push(new THREE.Quaternion());
+    }
+    this._quatPoolIndex = 0;
+
     this._bindEvents();
+  }
+
+  /** Get a quaternion from the pool */
+  _getPooledQuaternion() {
+    const quat = this._quatPool[this._quatPoolIndex];
+    this._quatPoolIndex = (this._quatPoolIndex + 1) % this._quatPoolSize;
+    return quat;
   }
 
   // ─── Public ────────────────────────────────────────────────────────────────
@@ -52,12 +67,29 @@ export class InteractionManager {
   // ─── Private ───────────────────────────────────────────────────────────────
 
   _bindEvents() {
-    this.canvas.addEventListener('pointermove', this._onPointerMove.bind(this));
-    this.canvas.addEventListener('pointerdown', this._onPointerDown.bind(this));
-    window.addEventListener('pointerup',        this._onPointerUp.bind(this));
+    // Bind methods for cleanup
+    this._boundPointerMove = this._onPointerMove.bind(this);
+    this._boundPointerDown = this._onPointerDown.bind(this);
+    this._boundPointerUp = this._onPointerUp.bind(this);
+    
+    this.canvas.addEventListener('pointermove', this._boundPointerMove, { passive: true });
+    this.canvas.addEventListener('pointerdown', this._boundPointerDown);
+    window.addEventListener('pointerup', this._boundPointerUp);
+  }
+
+  /** Cleanup event listeners to prevent memory leaks */
+  dispose() {
+    this.canvas.removeEventListener('pointermove', this._boundPointerMove);
+    this.canvas.removeEventListener('pointerdown', this._boundPointerDown);
+    window.removeEventListener('pointerup', this._boundPointerUp);
   }
 
   _onPointerMove(e) {
+    // Prevent default touch actions during interaction
+    if (e.pointerType === 'touch') {
+      e.preventDefault?.();
+    }
+    
     this.mouseRawX = (e.clientX / window.innerWidth)  * 2 - 1;
     this.mouseRawY = (e.clientY / window.innerHeight) * 2 - 1;
     this.ndcPointer.set(this.mouseRawX, -this.mouseRawY);
@@ -65,8 +97,14 @@ export class InteractionManager {
     if (this.isDragging) {
       const dx = e.clientX - this.prevPointerX;
       const dy = e.clientY - this.prevPointerY;
-      this.dragBaseY -= dx * CONFIG.DRAG_SENS;
-      this.dragBaseX += dy * CONFIG.DRAG_SENS;
+      
+      // Adjust drag sensitivity for touch devices
+      const sensitivity = e.pointerType === 'touch' 
+        ? CONFIG.DRAG_SENS * 0.7  // Reduce sensitivity for touch
+        : CONFIG.DRAG_SENS;
+      
+      this.dragBaseY -= dx * sensitivity;
+      this.dragBaseX += dy * sensitivity;
       this.prevPointerX = e.clientX;
       this.prevPointerY = e.clientY;
     }

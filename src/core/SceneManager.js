@@ -3,6 +3,9 @@ import { CONFIG } from '../config/constants.js';
 
 export class SceneManager {
   constructor(canvas) {
+    if (!canvas) {
+      throw new Error('SceneManager: canvas element is required');
+    }
     this.canvas = canvas;
 
     // ─── Scene ─────────────────────────────────────────────────────────────
@@ -24,6 +27,7 @@ export class SceneManager {
       canvas: this.canvas,
       antialias: true,
       alpha: false,
+      powerPreference: 'high-performance',
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -36,7 +40,26 @@ export class SceneManager {
     this.scene.add(this.rootGroup);
 
     this._setupLights();
-    window.addEventListener('resize', this._onResize.bind(this));
+    
+    // Bind resize handler for cleanup
+    this._boundResize = this._onResize.bind(this);
+    window.addEventListener('resize', this._boundResize);
+  }
+
+  /** Cleanup resources to prevent memory leaks */
+  dispose() {
+    window.removeEventListener('resize', this._boundResize);
+    this.renderer.dispose();
+    this.scene.traverse((object) => {
+      if (object.isMesh) {
+        object.geometry?.dispose();
+        if (Array.isArray(object.material)) {
+          object.material.forEach(m => m.dispose());
+        } else {
+          object.material?.dispose();
+        }
+      }
+    });
   }
 
   _setupLights() {

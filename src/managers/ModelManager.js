@@ -42,6 +42,21 @@ export class ModelManager {
     );
   }
 
+  /** Cleanup resources to prevent memory leaks */
+  dispose() {
+    this.shardData.forEach((entry) => {
+      entry.mesh.geometry?.dispose();
+      if (Array.isArray(entry.mesh.material)) {
+        entry.mesh.material.forEach(m => m.dispose());
+      } else {
+        entry.mesh.material?.dispose();
+      }
+    });
+    this.shardData.length = 0;
+    this.shardMap.clear();
+    this.meshList.length = 0;
+  }
+
   // ─── Private ───────────────────────────────────────────────────────────────
 
   _registerShards(parentGroup) {
